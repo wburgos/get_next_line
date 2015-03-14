@@ -6,7 +6,7 @@
 /*   By: wburgos <wburgos@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/03/13 18:03:25 by wburgos           #+#    #+#             */
-/*   Updated: 2015/03/14 14:41:15 by wburgos          ###   ########.fr       */
+/*   Updated: 2015/03/14 14:51:23 by wburgos          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,34 @@ static int	advance_leftovers(char **tmp, char **line)
 	return (0);
 }
 
+static int	join_buffers(char *buff, char *eol, char **tmp, char **line)
+{
+	char	*old_tmp;
+
+	if (*line)
+		ft_strdel(line);
+	if (*tmp)
+	{
+		*line = ft_strnjoin(*tmp, buff, eol - buff);
+		old_tmp = *tmp;
+		*tmp = ft_strjoin(*tmp, buff);
+		ft_strdel(&old_tmp);
+	}
+	else
+	{
+		*line = ft_strndup(buff, eol - buff);
+		*tmp = ft_strdup(buff);
+	}
+	if (!*line)
+		return (-1);
+	if (!*tmp)
+		return (-1);
+	return (0);
+}
+
 static int	read_line(int fd, char **tmp, char **line)
 {
 	char	buff[BUFF_SIZE + 1];
-	char	*old_tmp;
 	int		bt;
 	char	*eol;
 
@@ -53,37 +77,15 @@ static int	read_line(int fd, char **tmp, char **line)
 		eol = ft_strchr(buff, '\n');
 		if (!eol)
 			eol = ft_strchr(buff, '\0');
-		if (*tmp)
-		{
-			if (*line)
-				ft_strdel(line);
-			*line = ft_strnjoin(*tmp, buff, eol - buff);
-			if (!*line)
-				return (-1);
-			old_tmp = *tmp;
-			*tmp = ft_strjoin(*tmp, buff);
-			ft_strdel(&old_tmp);
-			if (!*tmp)
-				return (-1);
-		}
-		else
-		{
-			if (*line)
-				ft_strdel(line);
-			*line = ft_strndup(buff, eol - buff);
-			if (!*line)
-				return (-1);
-			*tmp = ft_strdup(buff);
-			if (!*tmp)
-				return (-1);
-		}
+		if (join_buffers(buff, eol, tmp, line) == -1)
+			return (-1);
 		if (*eol == '\n')
 			break ;
 	}
 	return (bt);
 }
 
-int		get_next_line(int fd, char **line)
+int			get_next_line(int fd, char **line)
 {
 	static char	*tmp = NULL;
 	int			bt;
