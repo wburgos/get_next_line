@@ -1,7 +1,7 @@
 NAME = a.out
 SRC = get_next_line.c main.c
 OBJ = $(SRC:.c=.o)
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -g3
 
 .PHONY: all
 all: $(NAME)

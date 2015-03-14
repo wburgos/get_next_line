@@ -47,7 +47,7 @@ int		get_next_line(int fd, char **line)
 	int			bt;
 	int			adv;
 
-	if (*line == NULL)
+	if (line == NULL)
 		return (-1);
 	*line = NULL;
 	if ((adv = advance_leftovers(&tmp, line)) != 0)
