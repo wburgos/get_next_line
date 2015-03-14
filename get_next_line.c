@@ -10,38 +10,48 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
 #include "get_next_line.h"
+
+static int	advance_leftovers(char **tmp, char **line)
+{
+	char	*eol;
+	char	*old_tmp;
+
+	if (*tmp)
+	{
+		if ((eol = ft_strchr(*tmp, '\n')))
+		{
+			old_tmp = *tmp;
+			*tmp = ft_strdup(eol + 1);
+			ft_strdel(&old_tmp);
+			if (!*tmp)
+				return (-1);
+		}
+		else
+			ft_strdel(tmp);
+		if (*tmp && (eol = ft_strchr(*tmp, '\n')))
+		{
+			*line = ft_strndup(*tmp, (eol - *tmp));
+			return (1);
+		}
+	}
+	return (0);
+}
 
 int		get_next_line(int fd, char **line)
 {
-	char		buff[BUFF_SIZE];
+	char		buff[BUFF_SIZE + 1];
 	static char	*tmp = NULL;
 	char		*eol;
 	char		*old_tmp;
 	int			bt;
+	int			adv;
 
-	if (line == NULL)
+	if (*line == NULL)
 		return (-1);
 	*line = NULL;
-	if (tmp)
-	{
-		if ((eol = ft_strchr(tmp, '\n')))
-		{
-			old_tmp = tmp;
-			tmp = ft_strdup(eol + 1);
-			ft_strdel(&old_tmp);
-			if (!tmp)
-				return (-1);
-		}
-		else
-			ft_strdel(&tmp);
-		if (tmp && (eol = ft_strchr(tmp, '\n')))
-		{
-			*line = ft_strndup(tmp, (eol - tmp));
-			return (1);
-		}
-	}
+	if ((adv = advance_leftovers(&tmp, line)) != 0)
+		return (adv);
 	while ((bt = read(fd, buff, BUFF_SIZE)))
 	{
 		if (bt == -1)
